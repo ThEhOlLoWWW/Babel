@@ -3,10 +3,473 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Babel — The Reading Room</title>
+
+    <!-- Google Fonts: Newsreader (Editorial Serif) & Plus Jakarta Sans (Clean UI Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Compiled Tailwind CSS -->
     <link rel="stylesheet" href="./src/output.css" />
-    <title>Babel</title>
   </head>
-  <body>
-    <header></header>
+
+  <body
+    class="min-h-screen bg-[#F9F6F0] text-[#1C1B18] font-['Plus_Jakarta_Sans',sans-serif] antialiased selection:bg-[#E6EFEA] selection:text-[#2C4A3E]"
+  >
+    <!-- Top Navigation Bar -->
+    <header
+      class="border-b border-[#E8E2D9] bg-[#F9F6F0]/80 backdrop-blur-sm sticky top-0 z-20"
+    >
+      <div
+        class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between"
+      >
+        <!-- Brand Logo & Title -->
+        <a href="#" class="flex items-center gap-3.5 group">
+          <div
+            class="w-10 h-10 rounded-full bg-[#2C4A3E] text-white flex items-center justify-center shadow-xs group-hover:bg-[#233B31] transition-colors"
+          >
+            <span class="font-mono text-sm tracking-tighter font-semibold"
+              >|||\</span
+            >
+          </div>
+          <div>
+            <span
+              class="block font-['Newsreader',serif] text-xl font-semibold tracking-tight text-[#1C1B18] leading-none"
+            >
+              The Reading Room
+            </span>
+            <span
+              class="block text-[10px] uppercase tracking-[0.22em] text-[#78736A] mt-1 font-medium"
+            >
+              Personal Library
+            </span>
+          </div>
+        </a>
+
+        <!-- Add a Book Trigger Button -->
+        <button
+          id="toggle-form-btn"
+          type="button"
+          class="inline-flex items-center gap-2 rounded-full bg-[#2C4A3E] hover:bg-[#233B31] text-white px-5 py-2.5 text-sm font-medium transition-all shadow-xs cursor-pointer"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4.5v15m7.5-7.5h-15"
+            />
+          </svg>
+          <span>Add a book</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-5xl mx-auto px-6 pb-24">
+      <!-- Hero Section -->
+      <section class="py-14 md:py-20">
+        <p
+          class="text-xs uppercase tracking-[0.22em] text-[#A65E44] font-medium mb-4"
+        >
+          A quiet place for good stories
+        </p>
+        <h1
+          class="font-['Newsreader',serif] text-5xl sm:text-6xl md:text-[68px] font-medium tracking-tight leading-[1.05] text-[#1C1B18]"
+        >
+          Keep every book
+          <span class="block italic font-normal text-[#A65E44] mt-1"
+            >within reach.</span
+          >
+        </h1>
+        <p
+          class="mt-6 max-w-lg text-base md:text-lg text-[#656057] leading-relaxed font-normal"
+        >
+          Build a thoughtful collection of the books that have shaped you, one
+          title at a time.
+        </p>
+      </section>
+
+      <!-- Add / Edit Book Form Section (Add 'hidden' class here when wiring up JS toggle) -->
+      <section
+        id="book-form-section"
+        class="mb-16 bg-[#FDFBF7] rounded-3xl border border-[#E6E0D6] p-6 sm:p-10 shadow-xs transition-all"
+      >
+        <div class="flex items-start justify-between mb-8">
+          <div>
+            <h2
+              id="form-title"
+              class="font-['Newsreader',serif] text-2xl sm:text-3xl font-medium text-[#1C1B18]"
+            >
+              Add to your shelves
+            </h2>
+            <p class="text-sm text-[#78736A] mt-1">
+              Capture the details of a new favorite.
+            </p>
+          </div>
+          <button
+            id="cancel-form-btn"
+            type="button"
+            class="text-sm text-[#78736A] hover:text-[#1C1B18] transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+        </div>
+
+        <!-- Validation Error Banner (Hidden by default) -->
+        <div
+          id="form-error"
+          class="hidden mb-6 rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700"
+        >
+          Please fill in both the Title and Author fields.
+        </div>
+
+        <form id="book-form" novalidate>
+          <!-- Hidden input to store ID when editing an existing book (US-04) -->
+          <input type="hidden" id="book-id" value="" />
+
+          <!-- Row 1: Title & Author (Mandatory) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <label
+                for="title"
+                class="block text-sm font-medium text-[#3D3A34] mb-2"
+              >
+                Title <span class="text-[#A65E44]">*</span>
+              </label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                required
+                placeholder="The Great Gatsby"
+                class="w-full rounded-2xl border border-[#E2DCD3] bg-white px-4 py-3 text-sm text-[#1C1B18] placeholder-[#A8A298] focus:border-[#2C4A3E] focus:outline-none transition-colors"
+              />
+            </div>
+
+            <div>
+              <label
+                for="author"
+                class="block text-sm font-medium text-[#3D3A34] mb-2"
+              >
+                Author <span class="text-[#A65E44]">*</span>
+              </label>
+              <input
+                type="text"
+                id="author"
+                name="author"
+                required
+                placeholder="F. Scott Fitzgerald"
+                class="w-full rounded-2xl border border-[#E2DCD3] bg-white px-4 py-3 text-sm text-[#1C1B18] placeholder-[#A8A298] focus:border-[#2C4A3E] focus:outline-none transition-colors"
+              />
+            </div>
+          </div>
+
+          <!-- Row 2: Genre, Year, and Reading Status -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="md:col-span-2">
+              <label
+                for="genre"
+                class="block text-sm font-medium text-[#3D3A34] mb-2"
+              >
+                Genre
+              </label>
+              <select
+                id="genre"
+                name="genre"
+                class="w-full rounded-2xl border border-[#E2DCD3] bg-white px-4 py-3 text-sm text-[#1C1B18] focus:border-[#2C4A3E] focus:outline-none transition-colors"
+              >
+                <option value="">Choose a genre</option>
+                <option value="Fiction">Fiction</option>
+                <option value="Non-Fiction">Non-Fiction</option>
+                <option value="Biography">Biography</option>
+                <option value="Philosophy">Philosophy</option>
+                <option value="Sci-Fi & Fantasy">Sci-Fi & Fantasy</option>
+                <option value="History">History</option>
+                <option value="Poetry">Poetry</option>
+                <option value="Self-Development">Self-Development</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                for="year"
+                class="block text-sm font-medium text-[#3D3A34] mb-2"
+              >
+                Year
+              </label>
+              <input
+                type="number"
+                id="year"
+                name="year"
+                placeholder="2024"
+                min="1000"
+                max="2100"
+                class="w-full rounded-2xl border border-[#E2DCD3] bg-white px-4 py-3 text-sm text-[#1C1B18] placeholder-[#A8A298] focus:border-[#2C4A3E] focus:outline-none transition-colors"
+              />
+            </div>
+
+            <div>
+              <label
+                for="status"
+                class="block text-sm font-medium text-[#3D3A34] mb-2"
+              >
+                Status
+              </label>
+              <select
+                id="status"
+                name="status"
+                class="w-full rounded-2xl border border-[#E2DCD3] bg-white px-4 py-3 text-sm text-[#1C1B18] focus:border-[#2C4A3E] focus:outline-none transition-colors"
+              >
+                <option value="to-read">To Read</option>
+                <option value="reading">Reading</option>
+                <option value="read">Read</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Row 3: Description -->
+          <div class="mb-8">
+            <label
+              for="description"
+              class="block text-sm font-medium text-[#3D3A34] mb-2"
+            >
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows="3"
+              placeholder="What makes this book worth remembering?"
+              class="w-full rounded-2xl border border-[#E2DCD3] bg-white px-4 py-3 text-sm text-[#1C1B18] placeholder-[#A8A298] focus:border-[#2C4A3E] focus:outline-none transition-colors resize-none"
+            ></textarea>
+          </div>
+
+          <!-- Submit Button -->
+          <button
+            id="submit-book-btn"
+            type="submit"
+            class="rounded-full bg-[#A65E44] hover:bg-[#8F4E37] text-white px-7 py-3 text-sm font-medium transition-colors shadow-xs cursor-pointer"
+          >
+            Save book
+          </button>
+        </form>
+      </section>
+
+      <!-- Collection Header & Search/Sort Controls -->
+      <section>
+        <div
+          class="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-[#E2DCD3]"
+        >
+          <div>
+            <p
+              class="text-[11px] uppercase tracking-[0.2em] text-[#78736A] font-medium"
+            >
+              Your Collection
+            </p>
+            <h2
+              id="book-count"
+              class="font-['Newsreader',serif] text-2xl sm:text-3xl font-medium text-[#1C1B18] mt-1"
+            >
+              1 book on the shelf
+            </h2>
+          </div>
+
+          <!-- Search & Sort Bar (US-03) -->
+          <div
+            class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+          >
+            <!-- Search Input -->
+            <div class="relative">
+              <svg
+                class="w-4 h-4 text-[#8C857B] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                />
+              </svg>
+              <input
+                type="search"
+                id="search-input"
+                placeholder="Search your collection"
+                class="w-full sm:w-64 rounded-full border border-[#E2DCD3] bg-[#FDFBF7] pl-10 pr-4 py-2.5 text-sm text-[#1C1B18] placeholder-[#8C857B] focus:border-[#2C4A3E] focus:bg-white focus:outline-none transition-all"
+              />
+            </div>
+
+            <!-- Sort Select Dropdown -->
+            <select
+              id="sort-select"
+              aria-label="Sort books"
+              class="rounded-full border border-[#E2DCD3] bg-[#FDFBF7] px-4 py-2.5 text-sm text-[#57524A] focus:border-[#2C4A3E] focus:bg-white focus:outline-none transition-all cursor-pointer"
+            >
+              <option value="title">Sort by Title</option>
+              <option value="author">Sort by Author</option>
+              <option value="year">Sort by Year</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Books Grid Container (US-02) -->
+        <div
+          id="books-grid"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-8"
+        >
+          <!-- Sample Book Card (Move this HTML structure into ui.js later) -->
+          <article
+            data-id="sample-1"
+            class="group bg-[#FDFBF7] rounded-3xl border border-[#E6E0D6] p-6 shadow-2xs hover:shadow-md hover:border-[#D5CEC2] transition-all flex flex-col justify-between"
+          >
+            <div>
+              <!-- Card Top Bar: Badges + Edit/Delete Actions -->
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span
+                    class="inline-block rounded-full bg-[#E6EFEA] text-[#2C4A3E] px-3 py-1 text-xs font-medium"
+                  >
+                    Biography
+                  </span>
+                  <span
+                    class="inline-block rounded-full bg-[#F2ECE1] text-[#78736A] px-2.5 py-1 text-[11px] font-medium"
+                  >
+                    Reading
+                  </span>
+                </div>
+
+                <!-- Action Buttons (Event Delegation targets: .edit-btn & .delete-btn) -->
+                <div
+                  class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity"
+                >
+                  <button
+                    type="button"
+                    data-action="edit"
+                    title="Edit book"
+                    class="edit-btn p-1.5 rounded-full text-[#78736A] hover:text-[#2C4A3E] hover:bg-[#E6EFEA] transition-colors cursor-pointer"
+                  >
+                    <svg
+                      class="w-4 h-4 pointer-events-none"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    data-action="delete"
+                    title="Delete book"
+                    class="delete-btn p-1.5 rounded-full text-[#78736A] hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                  >
+                    <svg
+                      class="w-4 h-4 pointer-events-none"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Book Title & Author -->
+              <h3
+                class="font-['Newsreader',serif] text-2xl font-medium text-[#1C1B18] mt-5 leading-snug"
+              >
+                The Creative Act
+              </h3>
+              <p class="text-sm text-[#78736A] mt-1">by Rick Rubin</p>
+
+              <!-- Book Description -->
+              <p
+                class="text-sm text-[#4A463F] mt-4 leading-relaxed line-clamp-3"
+              >
+                A meditative reflection on creativity, art, and how to tune in
+                to the creative source in everyday life.
+              </p>
+            </div>
+
+            <!-- Card Footer -->
+            <div
+              class="border-t border-[#ECE6DC] mt-6 pt-4 flex items-center justify-between text-xs text-[#8C857B] uppercase tracking-wider"
+            >
+              <span>2023</span>
+              <span>Status: Reading</span>
+            </div>
+          </article>
+        </div>
+
+        <!-- Empty State (Hidden by default, show when collection is empty) -->
+        <div
+          id="empty-state"
+          class="hidden text-center py-16 px-4 rounded-3xl border border-dashed border-[#DED8CE] mt-8"
+        >
+          <p class="font-['Newsreader',serif] text-2xl text-[#3D3A34]">
+            Your shelves are currently empty.
+          </p>
+          <p class="text-sm text-[#78736A] mt-2">
+            Click "+ Add a book" above to begin your personal library.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Delete Confirmation Modal (US-05) -->
+    <dialog
+      id="delete-modal"
+      class="m-auto rounded-3xl border border-[#E6E0D6] bg-[#FDFBF7] p-6 sm:p-8 shadow-xl backdrop:bg-black/30 backdrop:backdrop-blur-xs max-w-md w-full"
+    >
+      <h3 class="font-['Newsreader',serif] text-2xl font-medium text-[#1C1B18]">
+        Remove from shelves?
+      </h3>
+      <p class="text-sm text-[#656057] mt-2 leading-relaxed">
+        Are you sure you want to delete this book from your collection? This
+        action cannot be undone.
+      </p>
+      <div class="mt-6 flex items-center justify-end gap-3">
+        <button
+          id="cancel-delete-btn"
+          type="button"
+          class="rounded-full px-5 py-2 text-sm font-medium text-[#57524A] hover:bg-[#EFECE6] transition-colors cursor-pointer"
+        >
+          Cancel
+        </button>
+        <button
+          id="confirm-delete-btn"
+          type="button"
+          class="rounded-full bg-red-600 hover:bg-red-700 text-white px-5 py-2 text-sm font-medium transition-colors cursor-pointer"
+        >
+          Delete book
+        </button>
+      </div>
+    </dialog>
+
+    <!-- Main ES6 Module Script (Uncomment once you create src/js/app.js) -->
+    <!-- <script type="module" src="./src/js/app.js"></script> -->
   </body>
 </html>
