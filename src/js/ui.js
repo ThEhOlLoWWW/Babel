@@ -1,13 +1,63 @@
+import { books } from "./state.js";
+import { saveBooks } from "./storage.js";
+
+export const formSection = document.getElementById("book-form-section");
+export const form = document.getElementById("book-form");
+export const title = document.getElementById("title");
+export const author = document.getElementById("author");
+export const genre = document.getElementById("genre");
+export const year = document.getElementById("year");
+export const status = document.getElementById("status");
+export const description = document.getElementById("description");
+
+export const formError = document.getElementById("form-error");
+
 export const botona = document.getElementById("toggle-form-btn");
-export const form = document.getElementById("book-form-section");
 export const cancel = document.getElementById("cancel-form-btn");
 
 botona.addEventListener("click", () => {
-  form.classList.toggle("hidden");
+  formSection.classList.toggle("hidden");
 });
 
 cancel.addEventListener("click", () => {
-  form.classList.add("hidden");
+  formSection.classList.add("hidden");
+});
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const bookTitle = title.value.trim();
+  const bookAuthor = author.value.trim();
+  const bookGenre = genre.value.trim();
+  const bookYear = year.value.trim();
+  const bookStatus = status.value.trim();
+  const bookDescription = description.value.trim();
+
+  if (bookTitle.length === 0 || bookAuthor.length === 0) {
+    formError.classList.remove("hidden");
+    return;
+  } else {
+    formError.classList.add("hidden");
+  }
+
+  const newBook = {
+    id: crypto.randomUUID(),
+    title: bookTitle,
+    author: bookAuthor,
+    genre: bookGenre,
+    year: bookYear === "" ? null : Number(bookYear),
+    status: bookStatus,
+    description: bookDescription,
+  };
+
+  books.push(newBook);
+
+  saveBooks(books);
+  renderBooks(books);
+
+  form.reset();
+
+  formSection.classList.add("hidden");
 });
 
 export function renderBooks(books) {
