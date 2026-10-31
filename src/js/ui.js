@@ -15,6 +15,8 @@ export const formError = document.getElementById("form-error");
 export const botona = document.getElementById("toggle-form-btn");
 export const cancel = document.getElementById("cancel-form-btn");
 
+const emptyState = document.getElementById("empty-state");
+
 botona.addEventListener("click", () => {
   formSection.classList.toggle("hidden");
 });
@@ -61,6 +63,12 @@ form.addEventListener("submit", (e) => {
 });
 
 export function renderBooks(books) {
+  if (books.length === 0) {
+    emptyState.classList.remove("hidden");
+  } else {
+    emptyState.classList.add("hidden");
+  }
+
   const booksGrid = document.getElementById("books-grid");
   booksGrid.innerHTML = "";
   books.forEach((book) => {
@@ -78,6 +86,14 @@ export function renderBooks(books) {
     author.textContent = `by ${book.author}`;
     author.className = "text-sm text-[#78736A] mt-1";
     article.appendChild(author);
+
+    if (book.year !== null && book.year !== undefined) {
+      const year = document.createElement("p");
+      year.textContent = `Published in ${book.year}`;
+      year.className = "text-xs text-[#78736A] mt-2";
+
+      article.appendChild(year);
+    }
 
     const description = document.createElement("p");
     description.textContent = book.description;
