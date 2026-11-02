@@ -1,5 +1,9 @@
 import { books } from "./state.js";
 import { saveBooks } from "./storage.js";
+import { searchBooks } from "./utils.js";
+import { sortBooksByAuthor } from "./utils.js";
+import { sortBooksByTitle } from "./utils.js";
+import { sortBooksByYear } from "./utils.js";
 
 export const formSection = document.getElementById("book-form-section");
 export const form = document.getElementById("book-form");
@@ -14,6 +18,10 @@ export const formError = document.getElementById("form-error");
 
 export const botona = document.getElementById("toggle-form-btn");
 export const cancel = document.getElementById("cancel-form-btn");
+
+export const searchInput = document.getElementById("search-input");
+
+export const sortSelect = document.getElementById("sort-select");
 
 const emptyState = document.getElementById("empty-state");
 
@@ -60,6 +68,28 @@ form.addEventListener("submit", (e) => {
   form.reset();
 
   formSection.classList.add("hidden");
+});
+
+searchInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    const query = searchInput.value.trim();
+
+    const results = searchBooks(books, query);
+    renderBooks(results);
+  }
+});
+
+sortSelect.addEventListener("change", () => {
+  if (sortSelect.value === "title") {
+    const sortTitle = sortBooksByTitle(books);
+    renderBooks(sortTitle);
+  } else if (sortSelect.value === "author") {
+    const sortAuthor = sortBooksByAuthor(books);
+    renderBooks(sortAuthor);
+  } else if (sortSelect.value === "year") {
+    const sortYear = sortBooksByYear(books);
+    renderBooks(sortYear);
+  }
 });
 
 export function renderBooks(books) {
