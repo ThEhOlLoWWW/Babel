@@ -23,13 +23,20 @@ export const searchInput = document.getElementById("search-input");
 
 export const sortSelect = document.getElementById("sort-select");
 
-const emptyState = document.getElementById("empty-state");
+export const emptyState = document.getElementById("empty-state");
+
+export const booksGrid = document.getElementById("books-grid");
+
+let editingBookId = null;
 
 botona.addEventListener("click", () => {
   formSection.classList.toggle("hidden");
 });
 
 cancel.addEventListener("click", () => {
+  editingBookId = null;
+  form.reset();
+  formError.classList.add("hidden");
   formSection.classList.add("hidden");
 });
 
@@ -50,8 +57,7 @@ form.addEventListener("submit", (e) => {
     formError.classList.add("hidden");
   }
 
-  const newBook = {
-    id: crypto.randomUUID(),
+  const bookData = {
     title: bookTitle,
     author: bookAuthor,
     genre: bookGenre,
@@ -60,11 +66,22 @@ form.addEventListener("submit", (e) => {
     description: bookDescription,
   };
 
-  books.push(newBook);
+  if (editingBookId !== null) {
+    const book = books.find((book) => book.id === editingBookId);
+
+    Object.assign(book, bookData);
+  } else {
+    const newBook = {
+      id: crypto.randomUUID(),
+      ...bookData,
+    };
+
+    books.push(newBook);
+  }
 
   saveBooks(books);
   renderBooks(books);
-
+  editingBookId = null;
   form.reset();
 
   formSection.classList.add("hidden");
@@ -92,6 +109,50 @@ sortSelect.addEventListener("change", () => {
   }
 });
 
+booksGrid.addEventListener("click", (e) => {
+  const button = e.target.closest('[data-action="edit"]');
+
+  if (!button) return;
+
+  const article = button.closest("article");
+  const bookId = article.dataset.id;
+
+  const book = books.find((book) => book.id === bookId);
+
+  console.log(book);
+  editingBookId = book.id;
+
+  title.value = book.title;
+  author.value = book.author;
+  genre.value = book.genre;
+  year.value = book.year ?? "";
+  status.value = book.status;
+  description.value = book.description;
+
+  formSection.classList.remove("hidden");
+});
+
+booksGrid.addEventListener("click", (e) => {
+  const button = e.target.closest('[data-action="delete"]');
+
+  if (!button) return;
+
+  const article = button.closest("article");
+  const bookId = article.dataset.id;
+
+  const confirmed = confirm("Are you sure you want to delete this book?");
+
+  if (!confirmed) return;
+  const bookIndex = books.findIndex((book) => book.id === bookId);
+
+  if (bookIndex === -1) return;
+
+  books.splice(bookIndex, 1);
+
+  saveBooks(books);
+  renderBooks(books);
+});
+
 export function renderBooks(books) {
   if (books.length === 0) {
     emptyState.classList.remove("hidden");
@@ -105,6 +166,8 @@ export function renderBooks(books) {
     const article = document.createElement("article");
     article.className =
       "group bg-[#FDFBF7] rounded-3xl border border-[#E6E0D6] p-6 shadow-2xs hover:shadow-md hover:border-[#D5CEC2] transition-all flex flex-col justify-between";
+
+    article.dataset.id = book.id;
 
     const title = document.createElement("h3");
     title.textContent = book.title;
